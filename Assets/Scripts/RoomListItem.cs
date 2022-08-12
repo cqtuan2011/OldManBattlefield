@@ -2,10 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class RoomListItem : MonoBehaviour
+public class RoomListItem : MonoBehaviourPunCallbacks
 {
     [SerializeField] private TextMeshProUGUI roomName;
+    [SerializeField] private TextMeshProUGUI roomCapacity;
 
     private MenuLauncher menuLauncher;
 
@@ -14,9 +17,11 @@ public class RoomListItem : MonoBehaviour
         menuLauncher = FindObjectOfType<MenuLauncher>();
     }
 
-    public void SetRoomName(string _roomName)
+    public void SetRoomInfo(RoomInfo _roomInfo)
     {
-        roomName.text = _roomName;
+        roomName.text = _roomInfo.Name;
+        roomCapacity.text = _roomInfo.PlayerCount + "/" + _roomInfo.MaxPlayers;
+
     }
 
     public void OnClickRoom()

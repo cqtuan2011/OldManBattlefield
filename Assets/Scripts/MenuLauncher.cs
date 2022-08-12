@@ -8,6 +8,7 @@ using Photon.Realtime;
 public class MenuLauncher : MonoBehaviourPunCallbacks
 {
     [SerializeField] private Menu[] menus;
+    [SerializeField] private GameObject loadingMenu;
 
     [Header("Find Game UI")]
     [SerializeField] private Transform roomListView;
@@ -16,8 +17,9 @@ public class MenuLauncher : MonoBehaviourPunCallbacks
 
     [Space(10)]
     [Header("Create Game UI")]
-    [SerializeField] private byte maxPlayers = 4;
+    [SerializeField] private byte maxPlayers = 4; // default
     [SerializeField] private TMP_InputField createGameInputField;
+    [SerializeField] private TMP_InputField roomCapacityInputField;
 
     [Space(10)]
     [Header("In-room UI")]
@@ -50,8 +52,18 @@ public class MenuLauncher : MonoBehaviourPunCallbacks
     {
         if (createGameInputField.text.Length >= 1)
         {
-            PhotonNetwork.CreateRoom(createGameInputField.text, new RoomOptions { MaxPlayers = maxPlayers });
+            RoomOptions roomOptions = new RoomOptions();
 
+            if (roomCapacityInputField.text.Length >= 1 && byte.Parse(roomCapacityInputField.text) >= 2)
+            {
+                roomOptions.MaxPlayers = byte.Parse(roomCapacityInputField.text);
+
+            } else
+            {
+                roomOptions.MaxPlayers = maxPlayers; // set the default room capacity to 4
+            }
+
+            PhotonNetwork.CreateRoom(createGameInputField.text, roomOptions);
         }
     }
 
@@ -71,6 +83,11 @@ public class MenuLauncher : MonoBehaviourPunCallbacks
     {
         roomName.text = "ROOM NAME: " + PhotonNetwork.CurrentRoom.Name;
         roomMenu.SetActive(true);
+
+        if (loadingMenu.activeSelf)
+        {
+            loadingMenu.SetActive(false);
+        }
 
         UpdatePlayerList();
     }
@@ -129,7 +146,7 @@ public class MenuLauncher : MonoBehaviourPunCallbacks
             } else
             {
                 RoomListItem newRoom = Instantiate(roomItemPrefab, roomListView);
-                newRoom.SetRoomName(list[i].Name);
+                newRoom.SetRoomInfo(list[i]);
                 roomList.Add(newRoom);
             }
         }
@@ -140,6 +157,7 @@ public class MenuLauncher : MonoBehaviourPunCallbacks
 
     public void JoinRoom(string roomName)
     {
+        loadingMenu.SetActive(true);
         PhotonNetwork.JoinRoom(roomName);   
     }
 
