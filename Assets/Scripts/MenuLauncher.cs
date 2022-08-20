@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using Photon.Pun;
 using Photon.Realtime;
+using UnityEngine.UI;
 
 public class MenuLauncher : MonoBehaviourPunCallbacks
 {
@@ -27,11 +28,14 @@ public class MenuLauncher : MonoBehaviourPunCallbacks
     [SerializeField] private TextMeshProUGUI roomName;
     [SerializeField] private PlayerListItem playerItemPrefab;
     [SerializeField] private Transform playerListView;
+    [SerializeField] private GameObject playGameButton;
+    [SerializeField] private Button playbtn;
     private List<PlayerListItem> playerList = new List<PlayerListItem>();
 
     void Start()
     {
         PhotonNetwork.JoinLobby();
+        playbtn.onClick.AddListener(StartGame);
     }
 
     public void OpenMenu(string _menuName)
@@ -90,6 +94,8 @@ public class MenuLauncher : MonoBehaviourPunCallbacks
         }
 
         UpdatePlayerList();
+
+        playGameButton.SetActive(PhotonNetwork.IsMasterClient);
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
@@ -140,10 +146,10 @@ public class MenuLauncher : MonoBehaviourPunCallbacks
         //Then we update all the new rooms in roomInfo
         for (int i = 0; i < list.Count; i++)
         {
-            if (list[i].PlayerCount == 0) // prevent "empty-room" show up
+            if (list[i].RemovedFromList) // prevent "empty-room" show up
             {
                 continue;
-            } else
+            } else if (list[i].PlayerCount > 0)
             {
                 RoomListItem newRoom = Instantiate(roomItemPrefab, roomListView);
                 newRoom.SetRoomInfo(list[i]);
@@ -166,7 +172,17 @@ public class MenuLauncher : MonoBehaviourPunCallbacks
         Debug.Log("Connecting to Master!");
         PhotonNetwork.JoinLobby();
         Debug.Log("Joined lobby");
+        PhotonNetwork.AutomaticallySyncScene = true; // Load scene for all the client when the Host changes scene
     }
 
-   
+    public void StartGame()
+    {
+        PhotonNetwork.LoadLevel(1);
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        playGameButton.SetActive(PhotonNetwork.IsMasterClient);
+    }
+
 }

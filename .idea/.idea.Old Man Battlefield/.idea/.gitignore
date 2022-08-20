@@ -1,0 +1,13 @@
+﻿# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/contentModel.xml
+/projectSettingsUpdater.xml
+/.idea.Old Man Battlefield.iml
+/modules.xml
+# Datasource local storage ignored files
+/../../../../../../../../../../:\Game Development\Green Academy\Project in class\FPS\Old Man Battlefield\Old Man Battlefield\.idea\.idea.Old Man Battlefield\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/
