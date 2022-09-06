@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [Tooltip("Anim transition speed")]
     [SerializeField] private float animBlendSpeed = 8.9f;
 
     private Rigidbody rb;
@@ -22,7 +23,7 @@ public class PlayerController : MonoBehaviour
 
     //Camera movement
     [Header("Camera")]
-    [Space(10)]
+    [SerializeField] private Transform headPosition;
     [SerializeField] private Transform cameraHolder;
     [SerializeField] private float upperLimit = -40f;
     [SerializeField] private float bottomLimit = 70f;
@@ -41,6 +42,11 @@ public class PlayerController : MonoBehaviour
         yVelocity = Animator.StringToHash("yVelocity");
     }
 
+    private void Start()
+    {
+        //AlignCameraPosition();
+    }
+
     private void FixedUpdate()
     {
         Move();
@@ -57,7 +63,7 @@ public class PlayerController : MonoBehaviour
 
         float targetSpeed = inputManager.Run ? runSpeed : walkSpeed; // if we press shift -> run 
 
-        if (inputManager.Move == Vector2.zero) targetSpeed = 0.01f;
+        if (inputManager.Move == Vector2.zero) targetSpeed = 0f;
 
         currentVelocity.x = Mathf.Lerp(currentVelocity.x, inputManager.Move.x * targetSpeed, animBlendSpeed * Time.fixedDeltaTime);
         currentVelocity.y = Mathf.Lerp(currentVelocity.y, inputManager.Move.y * targetSpeed, animBlendSpeed * Time.fixedDeltaTime);
@@ -76,11 +82,18 @@ public class PlayerController : MonoBehaviour
         var mouseX = inputManager.Look.x;
         var mouseY = inputManager.Look.y;
 
-        xRotation -= mouseY * mouseSensitivity * Time.deltaTime; // using "-=" because it's opposite of our direction
+        xRotation -= mouseY * mouseSensitivity * Time.smoothDeltaTime; // using "-=" because it's opposite of our direction
         xRotation = Mathf.Clamp(xRotation, upperLimit, bottomLimit);
 
         cameraHolder.localRotation = Quaternion.Euler(xRotation, 0, 0);
 
-        transform.Rotate(Vector3.up, mouseX * mouseSensitivity * Time.deltaTime);
+        rb.MoveRotation(rb.rotation * Quaternion.Euler(0, mouseX * mouseSensitivity * Time.smoothDeltaTime, 0));
     }
+
+    //private void AlignCameraPosition()
+    //{
+    //    Vector3 camPos = new Vector3(headPosition.position.x, cameraHolder.position.y, headPosition.position.z);
+
+    //    cameraHolder.position = camPos;
+    //}
 }
