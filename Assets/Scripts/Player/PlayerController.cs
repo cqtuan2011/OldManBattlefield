@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class PlayerController : MonoBehaviour
 {
@@ -10,14 +11,21 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     private InputManager inputManager;
     private Animator anim;
+    private PhotonView PV;
 
     private bool hasAnim;
+    private bool isGrounded;
 
     private int xVelocity;
     private int yVelocity;
 
+    private int jumpHash;
+    private int groundHash;
+    private int fallingHash;
+
     private const float walkSpeed = 2f;
     private const float runSpeed = 6f;
+    private const float jumpForce = 10f;
 
     private Vector2 currentVelocity;
 
@@ -29,6 +37,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float bottomLimit = 70f;
     [SerializeField] private float mouseSensitivity = 20f;
 
+    [SerializeField] private GameObject objectToHide;
+
     private float xRotation; // Rotation of camera
     private float yRotation; // Rotation of camera
 
@@ -37,16 +47,26 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         hasAnim = TryGetComponent<Animator>(out anim);
         inputManager = GetComponent<InputManager>();
+        PV = GetComponent<PhotonView>();
 
         xVelocity = Animator.StringToHash("xVelocity");
         yVelocity = Animator.StringToHash("yVelocity");
+        jumpHash = Animator.StringToHash("Jump");
+        groundHash = Animator.StringToHash("isGrounded");
+        fallingHash = Animator.StringToHash("isFalling");
     }
 
     private void Start()
     {
+        HideHeadLocal(PV.IsMine);
         //AlignCameraPosition();
     }
 
+    private void Update()
+    {
+        //Jump();        
+        HandleJump();
+    }
     private void FixedUpdate()
     {
         Move();
@@ -77,6 +97,14 @@ public class PlayerController : MonoBehaviour
         anim.SetFloat(yVelocity, currentVelocity.y);
     }
 
+    private void Jump()
+    {
+        if (inputManager.Jump && isGrounded)
+        {
+            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        }
+    }
+
     private void CameraMovement()
     {
         var mouseX = inputManager.Look.x;
@@ -88,6 +116,30 @@ public class PlayerController : MonoBehaviour
         cameraHolder.localRotation = Quaternion.Euler(xRotation, 0, 0);
 
         rb.MoveRotation(rb.rotation * Quaternion.Euler(0, mouseX * mouseSensitivity * Time.smoothDeltaTime, 0));
+    }
+
+    private void HideHeadLocal(bool isLocal)
+    {
+        if (isLocal)
+        {
+            int layerObjectToHide = LayerMask.NameToLayer("ObjectToHide");
+            objectToHide.layer = layerObjectToHide;
+        }
+    }
+
+    private void HandleJump()
+    {
+        if (!hasAnim) return;
+
+        if (!inputManager.Jump) return;
+
+        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        anim.SetTrigger(jumpHash);
+    }
+
+    public void SetGroundedState(bool isGrounded)
+    {
+        this.isGrounded = isGrounded;
     }
 
     //private void AlignCameraPosition()
