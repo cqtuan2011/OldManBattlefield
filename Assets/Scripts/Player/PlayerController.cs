@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
 
     private const float walkSpeed = 2f;
     private const float runSpeed = 6f;
-    private const float jumpForce = 10f;
+    private const float jumpForce = 20f;
 
     private Vector2 currentVelocity;
 
@@ -51,7 +51,7 @@ public class PlayerController : MonoBehaviour
 
         xVelocity = Animator.StringToHash("xVelocity");
         yVelocity = Animator.StringToHash("yVelocity");
-        jumpHash = Animator.StringToHash("Jump");
+        jumpHash = Animator.StringToHash("isJumping");
         groundHash = Animator.StringToHash("isGrounded");
         fallingHash = Animator.StringToHash("isFalling");
     }
@@ -65,7 +65,8 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         //Jump();        
-        HandleJump();
+        //HandleJump();
+        //SetAnimation();
     }
     private void FixedUpdate()
     {
@@ -97,14 +98,6 @@ public class PlayerController : MonoBehaviour
         anim.SetFloat(yVelocity, currentVelocity.y);
     }
 
-    private void Jump()
-    {
-        if (inputManager.Jump && isGrounded)
-        {
-            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
-        }
-    }
-
     private void CameraMovement()
     {
         var mouseX = inputManager.Look.x;
@@ -122,8 +115,11 @@ public class PlayerController : MonoBehaviour
     {
         if (isLocal)
         {
-            int layerObjectToHide = LayerMask.NameToLayer("ObjectToHide");
-            objectToHide.layer = layerObjectToHide;
+            foreach (var obj in objectToHide.GetComponentsInChildren<Transform>())
+            {
+                int layerObjectToHide = LayerMask.NameToLayer("ObjectToHide");
+                obj.gameObject.layer = layerObjectToHide;
+            }
         }
     }
 
@@ -131,21 +127,14 @@ public class PlayerController : MonoBehaviour
     {
         if (!hasAnim) return;
 
-        if (!inputManager.Jump) return;
+        if (!inputManager.Jump && !isGrounded) return;
 
+        rb.AddForce(-rb.velocity.y * Vector3.up, ForceMode.VelocityChange);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
-        anim.SetTrigger(jumpHash);
     }
 
     public void SetGroundedState(bool isGrounded)
     {
         this.isGrounded = isGrounded;
     }
-
-    //private void AlignCameraPosition()
-    //{
-    //    Vector3 camPos = new Vector3(headPosition.position.x, cameraHolder.position.y, headPosition.position.z);
-
-    //    cameraHolder.position = camPos;
-    //}
 }
