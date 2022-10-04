@@ -2,19 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
+using Photon.Realtime;
 
-public class ItemManager : MonoBehaviour
+public class ItemManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] private Item[] items;
 
     private int currentItemIndex;
     private int previousItemindex = -1;
 
+    private PhotonView PV;
+
     private void Start()
     {
-        PhotonView photonView = GetComponentInParent<PhotonView>();
+        PhotonView PV = GetComponentInParent<PhotonView>();
 
-        if (photonView.IsMine)
+        if (PV.IsMine)
         {
             EquipItem(0);
         }
@@ -40,6 +44,15 @@ public class ItemManager : MonoBehaviour
         }
 
         previousItemindex = currentItemIndex;
+
+        if (PV.IsMine)
+        {
+            Hashtable hash = new Hashtable();
+
+            hash.Add("currentItemIndex", currentItemIndex);
+
+            PhotonNetwork.LocalPlayer.SetCustomProperties(hash); 
+        }
     }
 
     private void CheckEquipItem()
@@ -71,6 +84,14 @@ public class ItemManager : MonoBehaviour
             {
                 EquipItem(currentItemIndex - 1);
             }
+        }
+    }
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+    {
+        if (!PV.IsMine && targetPlayer == PV.Owner)
+        {
+            EquipItem((int)changedProps["currentItemIndex"]);
         }
     }
 }
