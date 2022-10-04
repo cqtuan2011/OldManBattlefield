@@ -7,8 +7,8 @@ public class ItemManager : MonoBehaviour
 {
     [SerializeField] private Item[] items;
 
-    private short currentItemIndex;
-    private short previousItemindex = -1;
+    private int currentItemIndex;
+    private int previousItemindex = -1;
 
     private void Start()
     {
@@ -20,8 +20,16 @@ public class ItemManager : MonoBehaviour
         }
     }
 
-    public void EquipItem(short index)
+    private void Update()
     {
+        CheckEquipItem();
+    }
+
+    public void EquipItem(int index)
+    {
+        if (index == previousItemindex)
+            return;
+
         currentItemIndex = index;
 
         items[currentItemIndex].gameObject.SetActive(true);
@@ -32,5 +40,37 @@ public class ItemManager : MonoBehaviour
         }
 
         previousItemindex = currentItemIndex;
+    }
+
+    private void CheckEquipItem()
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (Input.GetKeyDown((i + 1).ToString()))
+            {
+                EquipItem(i);
+                break;
+            }
+        }
+
+        if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
+        {
+            if (currentItemIndex >= items.Length - 1)
+            {
+                EquipItem(0);
+            } else
+            {
+                EquipItem(currentItemIndex + 1);
+            }
+        } else if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
+        {
+            if (currentItemIndex <= 0)
+            {
+                EquipItem(items.Length - 1);
+            } else
+            {
+                EquipItem(currentItemIndex - 1);
+            }
+        }
     }
 }
