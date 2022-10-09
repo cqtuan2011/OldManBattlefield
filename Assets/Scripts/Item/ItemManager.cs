@@ -13,11 +13,12 @@ public class ItemManager : MonoBehaviourPunCallbacks
     private int previousItemindex = -1;
 
     private PhotonView PV;
-
+    private void Awake()
+    {
+        PV = GetComponent<PhotonView>();
+    }
     private void Start()
     {
-        PhotonView PV = GetComponentInParent<PhotonView>();
-
         if (PV.IsMine)
         {
             EquipItem(0);
