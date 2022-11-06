@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
 #endif
@@ -106,6 +107,7 @@ namespace StarterAssets
         private CharacterController _controller;
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
+        private PhotonView PV;
         private bool _rotateOnMove = true;
 
         private const float _threshold = 0.01f;
@@ -132,6 +134,8 @@ namespace StarterAssets
             {
                 _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
             }
+
+            PV = GetComponent<PhotonView>();    
         }
 
         private void Start()
@@ -165,7 +169,7 @@ namespace StarterAssets
 
         private void LateUpdate()
         {
-            CameraRotation();
+            CameraRotation(PV.IsMine);
         }
 
         private void AssignAnimationIDs()
@@ -192,8 +196,10 @@ namespace StarterAssets
             }
         }
 
-        private void CameraRotation()
+        private void CameraRotation(bool isLocal)
         {
+            if (!isLocal) return;
+
             // if there is an input and camera position is not fixed
             if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
             {

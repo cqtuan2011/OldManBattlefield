@@ -11,17 +11,17 @@ public class BulletProjectileRaycast : MonoBehaviour
 
     private Vector3 targetPosition;
 
-    //private void Start()
-    //{
-    //    projectileParticle = Instantiate(projectileParticle) as GameObject;
-    //    projectileParticle.transform.SetParent(transform, false);
+    private void Start()
+    {
+        projectileParticle = Instantiate(projectileParticle) as GameObject;
+        projectileParticle.transform.SetParent(transform, false);
 
-    //    if (muzzleParticle)
-    //    {
-    //        muzzleParticle = Instantiate(muzzleParticle, transform.position, transform.rotation) as GameObject;
-    //        Destroy(muzzleParticle, 1.5f); // 2nd parameter is lifetime of effect in seconds
-    //    }
-    //}
+        if (muzzleParticle)
+        {
+            muzzleParticle = Instantiate(muzzleParticle, transform.position, transform.rotation) as GameObject;
+            Destroy(muzzleParticle, 1.5f); // 2nd parameter is lifetime of effect in seconds
+        }
+    }
 
     public void Setup(Vector3 targetPosition)
     {
@@ -30,12 +30,33 @@ public class BulletProjectileRaycast : MonoBehaviour
 
     private void Update()
     {
+        var distanceBefore = Vector3.Distance(transform.position, targetPosition);
+
         Vector3 moveDirection = (targetPosition - transform.position).normalized;
         transform.position += moveDirection * shootSpeed * Time.deltaTime;
 
-        if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+
+        var distanceAfter = Vector3.Distance(transform.position, targetPosition);
+        
+        if (distanceBefore < distanceAfter)
         {
             Destroy(gameObject);
         }
     }
+
+    //private void OnCollisionEnter(Collision collision)
+    //{
+    //    if (collision != null)
+    //    {
+    //        DestroyImmediate(gameObject);
+    //    }
+    //}
+
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    //if (other != null)
+    //    //{
+    //    //}
+    //    Destroy(this.gameObject);
+    //}
 }

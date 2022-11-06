@@ -44,6 +44,11 @@ public class ThirdPersonShooterController : MonoBehaviour
             mouseWorldPosition = raycastHit.point;
             //aimTarget.transform.position = raycastHit.point;
             hitTransform = raycastHit.transform;
+
+            if (raycastHit.collider.gameObject.TryGetComponent<ITakeDamage>(out ITakeDamage ITakeDamage))
+            {
+
+            }
         }
     
         if (starterAssetsInputs.aim)
@@ -73,7 +78,7 @@ public class ThirdPersonShooterController : MonoBehaviour
 
         if (starterAssetsInputs.shoot)
         {
-            Vector3 aimDir = (mouseWorldPosition - firePosition.position).normalized;
+            //Vector3 aimDir = (mouseWorldPosition - firePosition.position).normalized;
             GameObject bullet = Instantiate(pfBulletProjectile, firePosition);
             bullet.transform.SetParent(null);
             bullet.GetComponent<BulletProjectileRaycast>().Setup(mouseWorldPosition);
