@@ -2,17 +2,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(ThirdPersonShooterController))]
 public class PlayerHealth : MonoBehaviour, ITakeDamage
 {
     [SerializeField] private int health;
 
     private int maxHealth = 100;
 
+    private ThirdPersonShooterController controller;
+
+    private void Awake()
+    {
+        controller = GetComponent<ThirdPersonShooterController>();
+    }
+    void Start()
+    {
+        health = maxHealth;
+    }
+
+    void Update()
+    {
+        
+    }
+
     public void TakeDamage(int amount)
     {
         health -= amount;
         if (health <= 0)
         {
+            controller.isDead = true;
             Debug.Log("Player is died");
         }
     }
@@ -26,17 +44,5 @@ public class PlayerHealth : MonoBehaviour, ITakeDamage
         }
 
         health = Mathf.Min(maxHealth, health += amount);
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        health = maxHealth;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

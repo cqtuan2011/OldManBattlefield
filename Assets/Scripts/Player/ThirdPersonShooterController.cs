@@ -23,6 +23,9 @@ public class ThirdPersonShooterController : MonoBehaviour
     private Animator anim;
 
     private bool isAim;
+    private bool isReload;
+    private bool isFinishAim;
+    [HideInInspector] public bool isDead = false; 
 
 
     private void Awake()
@@ -34,6 +37,14 @@ public class ThirdPersonShooterController : MonoBehaviour
 
     private void Update()
     {
+        if (isDead)
+        {
+            //anim.Play("Deadth");
+            Debug.Log("you die!");
+            Destroy(this.gameObject);
+            return;
+        }
+
         Vector3 mouseWorldPosition = Vector3.zero;
         Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
         Ray ray = Camera.main.ScreenPointToRay(screenCenterPoint);
@@ -45,14 +56,16 @@ public class ThirdPersonShooterController : MonoBehaviour
             //aimTarget.transform.position = raycastHit.point;
             hitTransform = raycastHit.transform;
 
-            if (raycastHit.collider.gameObject.TryGetComponent<ITakeDamage>(out ITakeDamage ITakeDamage))
+            if (raycastHit.collider.gameObject.TryGetComponent<PlayerHealth>(out PlayerHealth enemy))
             {
-
+                enemy.TakeDamage(15);
             }
         }
-    
-        if (starterAssetsInputs.aim)
+
+        if (starterAssetsInputs.aim && !isReload)
         {
+
+            //canShoot = true;
             aimVirtualCamera.gameObject.SetActive(true);
             thirdPersonController.SetSensitivity(aimSensitivity);
             thirdPersonController.ResetRotateOnMove(false);
@@ -74,9 +87,10 @@ public class ThirdPersonShooterController : MonoBehaviour
             thirdPersonController.ResetRotateOnMove(true);
             aimRig.weight = Mathf.Lerp(aimRig.weight, 0, Time.deltaTime * 20f);
             isAim = false;
+            //canShoot = false;
         }
 
-        if (starterAssetsInputs.shoot)
+        if (canShoot())
         {
             //Vector3 aimDir = (mouseWorldPosition - firePosition.position).normalized;
             GameObject bullet = Instantiate(pfBulletProjectile, firePosition);
@@ -91,5 +105,31 @@ public class ThirdPersonShooterController : MonoBehaviour
     private void UpdateAnimation()
     {
         anim.SetBool("isAim", isAim);
+        Reload((Input.GetKeyDown(KeyCode.R)));
+    }
+
+    private void Reload(bool isReloadPressed)
+    {
+        if (isReloadPressed)
+        {
+            isReload = true;
+            anim.Play("A_TP_CH_AR_01_Reload");
+        }
+    }
+
+    private bool canShoot()
+    {
+        if (starterAssetsInputs.shoot && isFinishAim)
+            return true;
+        return false;
+    }
+
+    public void ResetReload() => isReload = false;
+
+    public void ResetFinishAim() => StartCoroutine(FinishAim());
+    public IEnumerator FinishAim()
+    {
+        yield return new WaitForSeconds(1f);
+        isFinishAim = true;
     }
 }
