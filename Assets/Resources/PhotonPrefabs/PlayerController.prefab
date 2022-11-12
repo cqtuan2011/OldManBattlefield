@@ -707,6 +707,7 @@ GameObject:
   - component: {fileID: 8599957516167593224}
   - component: {fileID: 8599957516167593232}
   - component: {fileID: 2007505396357491366}
+  - component: {fileID: 2036881735}
   m_Layer: 8
   m_Name: PlayerArmature
   m_TagString: Player
@@ -849,6 +850,7 @@ MonoBehaviour:
   sprint: 0
   aim: 0
   shoot: 0
+  reload: 0
   analogMovement: 0
   cursorLocked: 1
   cursorInputForLook: 1
@@ -986,8 +988,12 @@ MonoBehaviour:
   aimColliderLayerMask:
     serializedVersion: 2
     m_Bits: 1
-  pfBulletProjectile: {fileID: 185492, guid: 0e5de1d4446e4be409b2bc4025c90341, type: 3}
+  pfBulletProjectile: {fileID: 1612659552556094166, guid: 1bdc5f2c015c1a84a9ec182ce3308325, type: 3}
   firePosition: {fileID: 8599957515921390877}
+  isDead: 0
+  currentAmmo: 0
+  defaultAmmo: 40
+  ammoText: {fileID: 0}
 --- !u!114 &8599957516167593232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1106,9 +1112,23 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents: []
-  sceneViewId: 0
+  sceneViewId: 1
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &2036881735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8599957516167593226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 949d3b797b4e2574e84735bddf9241f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 0
+  healthText: {fileID: 0}
 --- !u!1 &8599957516198004129
 GameObject:
   m_ObjectHideFlags: 0

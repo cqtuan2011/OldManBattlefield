@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using Cinemachine;
 using StarterAssets;
 using UnityEngine.Animations.Rigging;
+using UnityEngine.UI;
 
 public class ThirdPersonShooterController : MonoBehaviour
 {
@@ -25,7 +26,12 @@ public class ThirdPersonShooterController : MonoBehaviour
     private bool isAim;
     private bool isReload;
     private bool isFinishAim;
-    [HideInInspector] public bool isDead = false; 
+    [HideInInspector] public bool isDead = false;
+
+    [Header("Weapon")]
+    [SerializeField] private int currentAmmo;
+    [SerializeField] private int defaultAmmo = 40;
+    [SerializeField] private Text ammoText;
 
 
     private void Awake()
@@ -33,6 +39,11 @@ public class ThirdPersonShooterController : MonoBehaviour
         starterAssetsInputs = GetComponent<StarterAssetsInputs>();
         thirdPersonController = GetComponent<ThirdPersonController>();
         anim = GetComponent<Animator>();
+    }
+
+    private void Start()
+    {
+        currentAmmo = defaultAmmo;
     }
 
     private void Update()
@@ -96,6 +107,8 @@ public class ThirdPersonShooterController : MonoBehaviour
             bullet.transform.SetParent(null);
             bullet.GetComponent<BulletProjectileRaycast>().Setup(mouseWorldPosition);
             starterAssetsInputs.shoot = false;
+            currentAmmo -= 1;
+            UpdateAmmoText();
         }
 
         UpdateAnimation();
@@ -112,6 +125,8 @@ public class ThirdPersonShooterController : MonoBehaviour
         if (isReloadPressed)
         {
             isReload = true;
+            currentAmmo = defaultAmmo;
+            UpdateAmmoText();
             anim.Play("A_TP_CH_AR_01_Reload");
         }
     }
@@ -130,5 +145,10 @@ public class ThirdPersonShooterController : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         isFinishAim = true;
+    }
+
+    private void UpdateAmmoText()
+    {
+        ammoText.text = currentAmmo.ToString();
     }
 }
