@@ -40,6 +40,8 @@ public class BulletProjectileRaycast : MonoBehaviour
         
         if (distanceBefore < distanceAfter)
         {
+            GameObject impactP = Instantiate(impactParticle, targetPosition, Quaternion.identity);
+            Destroy(impactP, 3f);
             Destroy(gameObject);
         }
     }

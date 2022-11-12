@@ -64,7 +64,6 @@ public class ThirdPersonShooterController : MonoBehaviour
 
         if (starterAssetsInputs.aim && !isReload)
         {
-
             //canShoot = true;
             aimVirtualCamera.gameObject.SetActive(true);
             thirdPersonController.SetSensitivity(aimSensitivity);
@@ -119,7 +118,7 @@ public class ThirdPersonShooterController : MonoBehaviour
 
     private bool canShoot()
     {
-        if (starterAssetsInputs.shoot && isFinishAim)
+        if (starterAssetsInputs.shoot && isFinishAim && starterAssetsInputs.aim)
             return true;
         return false;
     }
