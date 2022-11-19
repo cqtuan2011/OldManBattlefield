@@ -30,7 +30,9 @@ public class MenuLauncher : MonoBehaviourPunCallbacks
     [SerializeField] private Transform playerListView;
     [SerializeField] private GameObject playGameButton;
     [SerializeField] private Button playbtn;
+
     private List<PlayerListItem> playerList = new List<PlayerListItem>();
+    private List<RoomInfo> roomInfoList;
 
     void Start()
     {
@@ -50,6 +52,7 @@ public class MenuLauncher : MonoBehaviourPunCallbacks
                 menus[i].gameObject.SetActive(false);
             }
         }
+        UpdateRoomList(roomInfoList);
     }
 
     public void OnClickCreateGame()
@@ -130,6 +133,7 @@ public class MenuLauncher : MonoBehaviourPunCallbacks
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
+        roomInfoList = roomList;
         UpdateRoomList(roomList);
     }
 

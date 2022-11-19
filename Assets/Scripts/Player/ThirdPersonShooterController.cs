@@ -6,6 +6,7 @@ using Cinemachine;
 using StarterAssets;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.UI;
+using Photon.Pun;
 
 public class ThirdPersonShooterController : MonoBehaviour
 {
@@ -22,32 +23,35 @@ public class ThirdPersonShooterController : MonoBehaviour
     private StarterAssetsInputs starterAssetsInputs;
     private ThirdPersonController thirdPersonController;
     private Animator anim;
+    private PlayerData playerData;
+    private PhotonView PV;
 
     private bool isAim;
     private bool isReload;
     private bool isFinishAim;
     [HideInInspector] public bool isDead = false;
 
-    [Header("Weapon")]
-    [SerializeField] private int currentAmmo;
-    [SerializeField] private int defaultAmmo = 40;
-    [SerializeField] private Text ammoText;
-
+    private int defaultAmmo = 40;
 
     private void Awake()
     {
         starterAssetsInputs = GetComponent<StarterAssetsInputs>();
         thirdPersonController = GetComponent<ThirdPersonController>();
         anim = GetComponent<Animator>();
+        PV = GetComponent<PhotonView>();
     }
 
     private void Start()
     {
-        currentAmmo = defaultAmmo;
+        if (!PV.IsMine) return;
+        playerData = Resources.Load("ScriptableObject/PlayerData") as PlayerData;
+        playerData.ammo = defaultAmmo;
     }
 
     private void Update()
     {
+        if (!PV.IsMine) return;
+
         if (isDead)
         {
             //anim.Play("Deadth");
@@ -107,8 +111,11 @@ public class ThirdPersonShooterController : MonoBehaviour
             bullet.transform.SetParent(null);
             bullet.GetComponent<BulletProjectileRaycast>().Setup(mouseWorldPosition);
             starterAssetsInputs.shoot = false;
-            currentAmmo -= 1;
-            UpdateAmmoText();
+            playerData.ammo -= 1;
+            if (playerData.ammo <= 1)
+            {
+                Reload(true);
+            }
         }
 
         UpdateAnimation();
@@ -125,8 +132,7 @@ public class ThirdPersonShooterController : MonoBehaviour
         if (isReloadPressed)
         {
             isReload = true;
-            currentAmmo = defaultAmmo;
-            UpdateAmmoText();
+            playerData.ammo = defaultAmmo;
             anim.Play("A_TP_CH_AR_01_Reload");
         }
     }
@@ -145,10 +151,5 @@ public class ThirdPersonShooterController : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         isFinishAim = true;
-    }
-
-    private void UpdateAmmoText()
-    {
-        ammoText.text = currentAmmo.ToString();
     }
 }

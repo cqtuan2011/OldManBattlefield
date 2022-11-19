@@ -7,11 +7,11 @@ using UnityEngine.UI;
 public class PlayerHealth : MonoBehaviour, ITakeDamage
 {
     [SerializeField] private int health;
-    [SerializeField] private Text healthText;
 
     private int maxHealth = 100;
 
     private ThirdPersonShooterController controller;
+    private PlayerData playerData;
 
     private void Awake()
     {
@@ -19,40 +19,28 @@ public class PlayerHealth : MonoBehaviour, ITakeDamage
     }
     void Start()
     {
-        health = maxHealth;
-        UpdateHealthText();
-    }
-
-    void Update()
-    {
-        
+        playerData = Resources.Load("ScriptableObject/PlayerData") as PlayerData;
+        playerData.health = maxHealth;
     }
 
     public void TakeDamage(int amount)
     {
-        health -= amount;
-        if (health <= 0)
+        playerData.health -= amount;
+        if (playerData.health <= 0)
         {
             controller.isDead = true;
             Debug.Log("Player is died");
         }
-        UpdateHealthText();
     }
 
     public void Heal(int amount)
     {
-        if (health >= 100)
+        if (playerData.health >= 100)
         {
-            health = maxHealth;
+            playerData.health = maxHealth;
             return;
         }
 
-        health = Mathf.Min(maxHealth, health += amount);
-        UpdateHealthText();
-    }
-
-    private void UpdateHealthText()
-    {
-        healthText.text = health.ToString();
+        playerData.health = Mathf.Min(maxHealth, playerData.health += amount);
     }
 }

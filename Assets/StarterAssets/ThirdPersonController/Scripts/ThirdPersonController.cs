@@ -106,7 +106,7 @@ namespace StarterAssets
         private Animator _animator;
         private CharacterController _controller;
         private StarterAssetsInputs _input;
-        private GameObject _mainCamera;
+        [SerializeField] private GameObject _mainCamera;
         private PhotonView PV;
         private bool _rotateOnMove = true;
 
@@ -129,17 +129,28 @@ namespace StarterAssets
 
         private void Awake()
         {
+            PV = GetComponent<PhotonView>();
+            
             // get a reference to our main camera
             if (_mainCamera == null)
             {
-                _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+                print("null camera");
+                //_mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
             }
 
-            PV = GetComponent<PhotonView>();    
         }
 
         private void Start()
         {
+            if (!PV.IsMine)
+            {
+                var camera1 = this.transform.parent.GetChild(0);
+                var camera2 = this.transform.parent.GetChild(1);//the first one is always the camera
+
+                Destroy(camera1.gameObject);
+                Destroy(camera2.gameObject);
+            }
+
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
             
             _hasAnimator = TryGetComponent(out _animator);
@@ -160,20 +171,25 @@ namespace StarterAssets
 
         private void Update()
         {
+            if (!PV.IsMine) return;
+
             _hasAnimator = TryGetComponent(out _animator);
 
             JumpAndGravity();
             GroundedCheck();
-            Move();
+            Move(PV.IsMine);
         }
 
         private void LateUpdate()
         {
+            if (!PV.IsMine) return;
+
             CameraRotation(PV.IsMine);
         }
 
         private void AssignAnimationIDs()
         {
+            if (!PV.IsMine) return;
             _animIDSpeed = Animator.StringToHash("Speed");
             _animIDGrounded = Animator.StringToHash("Grounded");
             _animIDJump = Animator.StringToHash("Jump");
@@ -183,6 +199,7 @@ namespace StarterAssets
 
         private void GroundedCheck()
         {
+            if (!PV.IsMine) return;
             // set sphere position, with offset
             Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset,
                 transform.position.z);
@@ -219,8 +236,9 @@ namespace StarterAssets
                 _cinemachineTargetYaw, 0.0f);
         }
 
-        private void Move()
+        private void Move(bool isLocal)
         {
+            if (!isLocal) return;
             // set target speed based on move speed, sprint speed and if sprint is pressed
             float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
 
@@ -292,6 +310,8 @@ namespace StarterAssets
 
         private void JumpAndGravity()
         {
+            if (!PV.IsMine) return;
+
             if (Grounded)
             {
                 // reset the fall timeout timer

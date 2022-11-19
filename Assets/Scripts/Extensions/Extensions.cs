@@ -1,18 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public static class Extensions
+namespace BA
 {
-    public static GameObject DestroyChildCamera(this GameObject gameObject)
+    public static class Extensions
     {
-        foreach (Transform obj in gameObject.transform)
+        public static GameObject DestroyChildCamera(this GameObject gameObject)
         {
-            if (obj.gameObject.name.Equals("PlayerCamera"))
+            foreach (Transform obj in gameObject.transform)
             {
-                return obj.gameObject;
-            } 
+                if (obj.gameObject.name.Equals("PlayerCamera"))
+                {
+                    return obj.gameObject;
+                }
+            }
+            return null;
         }
-        return null;
     }
 }
+
