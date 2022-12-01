@@ -108,6 +108,7 @@ namespace StarterAssets
         private StarterAssetsInputs _input;
         [SerializeField] private GameObject _mainCamera;
         private PhotonView PV;
+        private PlayerManager playerManager;
         private bool _rotateOnMove = true;
 
         private const float _threshold = 0.01f;
@@ -137,7 +138,6 @@ namespace StarterAssets
                 print("null camera");
                 //_mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
             }
-
         }
 
         private void Start()
@@ -428,6 +428,11 @@ namespace StarterAssets
         public void ResetRotateOnMove(bool newRotateOnMove)
         {
             _rotateOnMove = newRotateOnMove;
+        }
+
+        public void Die()
+        {
+            playerManager.Die();
         }
     }
 }

@@ -45,20 +45,4 @@ public class BulletProjectileRaycast : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    if (collision != null)
-    //    {
-    //        DestroyImmediate(gameObject);
-    //    }
-    //}
-
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    //if (other != null)
-    //    //{
-    //    //}
-    //    Destroy(this.gameObject);
-    //}
 }

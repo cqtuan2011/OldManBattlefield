@@ -9,6 +9,8 @@ public class PlayerManager : MonoBehaviour
 {
     private PhotonView photonView;
 
+    private GameObject controller;
+
     private void Awake()
     {
         photonView = GetComponent<PhotonView>();
@@ -24,6 +26,14 @@ public class PlayerManager : MonoBehaviour
 
     private void CreateController()
     {
-        PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs", "PlayerController"), Vector3.zero, Quaternion.identity); // Spawn Player
+        print("Create controller");
+        controller = PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs", "PlayerController"), Vector3.zero, Quaternion.identity, 0, new object[] { photonView.ViewID}); // Spawn Player
+    }
+
+    public void Die()
+    {
+        print("player die");
+        PhotonNetwork.Destroy(controller);
+        CreateController(); 
     }
 }

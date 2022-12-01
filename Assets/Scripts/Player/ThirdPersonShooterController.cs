@@ -15,7 +15,6 @@ public class ThirdPersonShooterController : MonoBehaviour
     [SerializeField] private float norSensitivity;
     [SerializeField] private float aimSensitivity;
     [SerializeField] private GameObject aimTarget;
-    [SerializeField] private LayerMask aimColliderLayerMask;
 
     [SerializeField] private GameObject pfBulletProjectile;
     [SerializeField] private Transform firePosition;
@@ -52,29 +51,16 @@ public class ThirdPersonShooterController : MonoBehaviour
     {
         if (!PV.IsMine) return;
 
-        if (isDead)
-        {
-            //anim.Play("Deadth");
-            Debug.Log("you die!");
-            Destroy(this.gameObject);
-            return;
-        }
-
         Vector3 mouseWorldPosition = Vector3.zero;
-        Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
-        Ray ray = Camera.main.ScreenPointToRay(screenCenterPoint);
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
+ 
 
         Transform hitTransform = null;
-        if (Physics.Raycast(ray, out RaycastHit raycastHit, 999f, aimColliderLayerMask))
+        if (Physics.Raycast(ray, out RaycastHit raycastHit, 999f))
         {
             mouseWorldPosition = raycastHit.point;
             //aimTarget.transform.position = raycastHit.point;
             hitTransform = raycastHit.transform;
-
-            if (raycastHit.collider.gameObject.TryGetComponent<PlayerHealth>(out PlayerHealth enemy))
-            {
-                enemy.TakeDamage(15);
-            }
         }
 
         if (starterAssetsInputs.aim && !isReload)
@@ -106,16 +92,7 @@ public class ThirdPersonShooterController : MonoBehaviour
 
         if (canShoot())
         {
-            //Vector3 aimDir = (mouseWorldPosition - firePosition.position).normalized;
-            GameObject bullet = Instantiate(pfBulletProjectile, firePosition);
-            bullet.transform.SetParent(null);
-            bullet.GetComponent<BulletProjectileRaycast>().Setup(mouseWorldPosition);
-            starterAssetsInputs.shoot = false;
-            playerData.ammo -= 1;
-            if (playerData.ammo <= 1)
-            {
-                Reload(true);
-            }
+            Shoot();
         }
 
         UpdateAnimation();
@@ -134,6 +111,28 @@ public class ThirdPersonShooterController : MonoBehaviour
             isReload = true;
             playerData.ammo = defaultAmmo;
             anim.Play("A_TP_CH_AR_01_Reload");
+        }
+    }
+
+    [PunRPC]
+    private void Shoot()
+    {
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f));
+
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            hit.collider.GetComponent<ITakeDamage>()?.TakeDamage(15);
+        }
+
+        //Vector3 aimDir = (mouseWorldPosition - firePosition.position).normalized;
+        GameObject bullet = Instantiate(pfBulletProjectile, firePosition);
+        bullet.transform.SetParent(null);
+        bullet.GetComponent<BulletProjectileRaycast>().Setup(hit.point);
+        starterAssetsInputs.shoot = false;
+        playerData.ammo -= 1;
+        if (playerData.ammo <= 1)
+        {
+            Reload(true);
         }
     }
 

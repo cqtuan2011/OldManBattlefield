@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,10 +13,14 @@ public class PlayerHealth : MonoBehaviour, ITakeDamage
 
     private ThirdPersonShooterController controller;
     private PlayerData playerData;
+    private PhotonView PV;
+    private PlayerManager playerManager;
 
     private void Awake()
     {
         controller = GetComponent<ThirdPersonShooterController>();
+        PV = GetComponent<PhotonView>();
+        playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
     }
     void Start()
     {
@@ -25,11 +30,19 @@ public class PlayerHealth : MonoBehaviour, ITakeDamage
 
     public void TakeDamage(int amount)
     {
+        PV.RPC("RPC_TakeDamage", RpcTarget.All, amount);
+    }
+
+    [PunRPC]
+    private void RPC_TakeDamage(int amount)
+    {
+        if (!PV.IsMine) return;
+
         playerData.health -= amount;
         if (playerData.health <= 0)
         {
             controller.isDead = true;
-            Debug.Log("Player is died");
+            Die();
         }
     }
 
@@ -42,5 +55,11 @@ public class PlayerHealth : MonoBehaviour, ITakeDamage
         }
 
         playerData.health = Mathf.Min(maxHealth, playerData.health += amount);
+    }
+
+    public void Die()
+    {
+        //Destroy(this.gameObject);
+        playerManager.Die();
     }
 }
