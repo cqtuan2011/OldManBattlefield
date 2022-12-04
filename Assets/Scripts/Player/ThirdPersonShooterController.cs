@@ -92,7 +92,8 @@ public class ThirdPersonShooterController : MonoBehaviour
 
         if (canShoot())
         {
-            Shoot();
+            PV.RPC("Shoot", RpcTarget.All);
+            //Shoot();
         }
 
         UpdateAnimation();
